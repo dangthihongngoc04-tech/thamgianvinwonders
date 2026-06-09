@@ -1,0 +1,57 @@
+const scriptTree = {
+    'start': {
+        text: 'David: "Hi! I am so excited to visit VinWonders Phu Quoc today. There are so many attractions here. Where should we go first?"',
+        img: 'entrance.jpg',
+        keywords: {
+            'aquarium': 'aquarium_scene',
+            'water park': 'waterpark_scene',
+            'water': 'waterpark_scene'
+        },
+        options: [
+            "Let's visit the aquarium first",
+            "Let's go to the water park first"
+        ]
+    },
+
+    'aquarium_scene': {
+        text: 'David: "Wow! The aquarium is amazing. I have never seen so many colorful fish and marine animals before. What should we visit next?"',
+        img: 'aquarium.jpg',
+        keywords: {
+            'adventure': 'adventure_scene',
+            'roller coaster': 'adventure_scene',
+            'castle': 'castle_scene'
+        },
+        options: [
+            "Let's go to Adventure Land",
+            "Let's visit the castle"
+        ]
+    },
+
+    'waterpark_scene': {
+        text: 'David: "The water park is fantastic! The slides are exciting and the weather is perfect for swimming. Where should we go next?"',
+        img: 'waterpark.jpg',
+        keywords: {
+            'adventure': 'adventure_scene',
+            'roller coaster': 'adventure_scene',
+            'castle': 'castle_scene'
+        },
+        options: [
+            "Let's go to Adventure Land",
+            "Let's visit the castle"
+        ]
+    },
+
+    'adventure_scene': {
+        text: 'David: "That roller coaster was incredible! I had so much fun. This is definitely one of the best theme parks I have ever visited. Thank you for guiding me today!" 🎢🎉',
+        img: 'adventure.jpg',
+        keywords: {},
+        options: []
+    },
+
+    'castle_scene': {
+        text: 'David: "The castle looks like something from a fairy tale. It is beautiful and magical. Thank you for showing me around VinWonders Phu Quoc!" 🏰✨',
+        img: 'castle.jpg',
+        keywords: {},
+        options: []
+    }
+};
