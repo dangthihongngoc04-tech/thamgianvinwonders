@@ -1,57 +1,408 @@
-const scriptTree = {
-    'start': {
-        text: 'David: "Hi! I am so excited to visit VinWonders Phu Quoc today. There are so many attractions here. Where should we go first?"',
-        img: 'entrance.jpg',
-        keywords: {
-            'aquarium': 'aquarium_scene',
-            'water park': 'waterpark_scene',
-            'water': 'waterpark_scene'
-        },
-        options: [
-            "Let's visit the aquarium first",
-            "Let's go to the water park first"
-        ]
-    },
+<!DOCTYPE html><html lang="en"><head>    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
+    <title>VinWonders Tour Guide - Webkit Speech</title>    
+    <style>        
+        :root {            
+            --primary-color: #dd6b20; /* Đổi sang màu cam đặc trưng của VinWonders */
+            --primary-hover: #dd6b20;            
+            --bg-color: #f7fafc;            
+            --card-bg: #ffffff;            
+            --text-main: #2d3748;            
+            --text-muted: #718096;            
+            --accent-color: #3182ce;            
+            --success-color: #38a169;        
+        }
+        * {            
+            box-sizing: border-box;            
+            margin: 0;            
+            padding: 0;            
+            -webkit-tap-highlight-color: transparent;        
+        }
+        body {            
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;            
+            background-color: var(--bg-color);            
+            color: var(--text-main);            
+            display: flex;            
+            justify-content: center;            
+            align-items: flex-start;            
+            min-height: 100vh;            
+            padding: 12px;        
+        }
+        .app-container {            
+            background: var(--card-bg);            
+            padding: 16px;            
+            border-radius: 16px;            
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);            
+            max-width: 500px;            
+            width: 100%;            
+            text-align: center;            
+            border: 1px solid #e2e8f0;            
+            margin-top: 10px;        
+        }
+        header h1 {            
+            font-size: 1.4rem;            
+            color: var(--primary-color);            
+            margin-bottom: 2px;        
+        }
+        header p {            
+            font-size: 0.85rem;            
+            color: var(--text-muted);            
+            margin-bottom: 12px;        
+        }
+        .media-container {            
+            width: 100%;            
+            height: 220px;            
+            background-color: #edf2f7;            
+            border-radius: 12px;            
+            overflow: hidden;            
+            margin-bottom: 12px;        
+        }
+        img {            
+            width: 100%;            
+            height: 100%;            
+            object-fit: cover;        
+        }
+        .character-bubble {            
+            background: #fffaf0;            
+            border-left: 4px solid var(--primary-color);            
+            padding: 12px;            
+            border-radius: 8px;            
+            text-align: left;            
+            margin-bottom: 12px;        
+        }
+        .character-name {            
+            font-weight: bold;            
+            color: var(--primary-color);            
+            margin-bottom: 4px;            
+            font-size: 0.8rem;            
+            text-transform: uppercase;        
+        }
+        .story-text {            
+            font-size: 1rem;            
+            line-height: 1.4;            
+            font-style: italic;        
+        }
+        .interaction-panel {            
+            background: #f7fafc;            
+            padding: 14px;            
+            border-radius: 10px;            
+            text-align: left;            
+            margin-bottom: 16px;            
+            border: 1px dashed #e2e8f0;        
+        }
+        .interaction-panel p {            
+            font-weight: 600;            
+            margin-bottom: 8px;            
+            color: var(--accent-color);            
+            font-size: 0.9rem;        
+        }
+        .option-line {            
+            margin: 8px 0;            
+            font-size: 0.95rem;            
+            color: #4a5568;            
+            padding-left: 15px;            
+            position: relative;            
+            line-height: 1.3;        
+        }
+        .option-line::before {            
+            content: "•";            
+            color: var(--primary-color);            
+            font-weight: bold;            
+            position: absolute;            
+            left: 0;        
+        }
+        .controls {            
+            display: flex;            
+            flex-direction: column;            
+            align-items: center;            
+            gap: 10px;        
+        }
+        .voice-btn {            
+            background-color: var(--primary-color);            
+            color: white;            
+            border: none;            
+            width: 100%;            
+            padding: 16px;            
+            font-size: 1.05rem;            
+            border-radius: 12px;            
+            cursor: pointer;            
+            font-weight: bold;            
+            box-shadow: 0 4px 6px rgba(221, 107, 32, 0.15);            
+            display: inline-flex;            
+            justify-content: center;            
+            align-items: center;            
+            gap: 8px;        
+        }
+        .voice-btn:active {            
+            background-color: var(--primary-hover);            
+            transform: scale(0.98);        
+        }
+        .voice-btn:disabled {            
+            background-color: #cbd5e0;            
+            box-shadow: none;        
+        }
+        .restart-btn {            
+            background-color: transparent;            
+            color: var(--text-muted);            
+            border: 1px solid #e2e8f0;            
+            padding: 8px 16px;            
+            font-size: 0.85rem;            
+            border-radius: 20px;            
+            cursor: pointer;        }
+        .status-box {            
+            margin-top: 12px;            
+            padding: 10px;            
+            border-radius: 8px;            
+            font-size: 0.85rem;            
+            background: #f7fafc;            
+            width: 100%;        
+        }
+        .status-active {            
+            color: #dd6b20;            
+            font-weight: 600;            
+            animation: pulse 1.5s infinite;        
+        }
+        .status-success { color: var(--success-color); font-weight: 600; }        
+        .status-error { color: #e53e3e; font-weight: 600; }
+        .transcript-zone {            
+            margin-top: 6px;            
+            font-size: 0.85rem;            
+            color: var(--text-muted);        
+        }
+        .transcript-text { font-weight: bold; color: #e53e3e; }
+        @keyframes pulse {            
+            0% { opacity: 0.6; }            
+            50% { opacity: 1; }            
+            100% { opacity: 0.6; }        
+        }    
+    </style>
+</head>
+<body>
 
-    'aquarium_scene': {
-        text: 'David: "Wow! The aquarium is amazing. I have never seen so many colorful fish and marine animals before. What should we visit next?"',
-        img: 'aquarium.jpg',
-        keywords: {
-            'adventure': 'adventure_scene',
-            'roller coaster': 'adventure_scene',
-            'castle': 'castle_scene'
-        },
-        options: [
-            "Let's go to Adventure Land",
-            "Let's visit the castle"
-        ]
-    },
+<div class="app-container">    
+    <header>        
+        <h1>🏰 VinWonders Tour Guide</h1>        
+        <p>Interactive Voice-Controlled Storytelling</p>    
+    </header>        
+    
+    <div class="media-container">        
+        <img id="scenery-img" src="vinwonders_gate.jpg" alt="VinWonders">    
+    </div>
 
-    'waterpark_scene': {
-        text: 'David: "The water park is fantastic! The slides are exciting and the weather is perfect for swimming. Where should we go next?"',
-        img: 'waterpark.jpg',
-        keywords: {
-            'adventure': 'adventure_scene',
-            'roller coaster': 'adventure_scene',
-            'castle': 'castle_scene'
-        },
-        options: [
-            "Let's go to Adventure Land",
-            "Let's visit the castle"
-        ]
-    },
+    <div class="character-bubble">        
+        <div class="character-name">David (Tourist)</div>        
+        <div id="story" class="story-text">...</div>    </div>
 
-    'adventure_scene': {
-        text: 'David: "That roller coaster was incredible! I had so much fun. This is definitely one of the best theme parks I have ever visited. Thank you for guiding me today!" 🎢🎉',
-        img: 'adventure.jpg',
-        keywords: {},
-        options: []
-    },
+    <div class="interaction-panel" id="interaction-box">        
+        <p>🔊 Press the button below and read an option ALOUD:</p>        
+        <div id="options-list"></div>    
+    </div>
 
-    'castle_scene': {
-        text: 'David: "The castle looks like something from a fairy tale. It is beautiful and magical. Thank you for showing me around VinWonders Phu Quoc!" 🏰✨',
-        img: 'castle.jpg',
-        keywords: {},
-        options: []
+    <div class="controls">        
+        <button id="start-btn" class="voice-btn">            
+            <span id="btn-icon">🎙️</span> <span id="btn-text">Tap to Speak</span>        
+        </button>        
+        <button class="restart-btn" onclick="resetGame()">Restart Tour</button>    
+    </div>        
+    
+    <div class="status-box">        
+        <div id="status-text">Ready. Please allow Microphone access when prompted.</div>        
+        <div class="transcript-zone">System heard: <span id="transcript-text" class="transcript-text">...</span></div>    
+    </div>
+</div>
+
+<script>    
+    // VinWonders Scenario Data Map
+    const scriptTree = {        
+        'start': {            
+            text: 'David: "Wow! The entrance of VinWonders looks like a magical fairy tale castle! I am so excited. What should we experience first? I love extreme thrills, but I also want to see the famous cultural shows!"',            
+            img: 'vinwonders_gate.jpg',            
+            keywords: {                
+                'ride': 'thrill_rides',                
+                'roller': 'thrill_rides',                
+                'show': 'safari_show',                
+                'tata': 'safari_show'            
+            },            
+            options: [                
+                "Let's try the roller coaster ride",                
+                "Let's watch the spectacular Tata Show"            
+            ]        
+        },        
+        'thrill_rides': {            
+            text: 'David: "Oh my goodness! That roller coaster was insane! My heart is still beating so fast, but it was absolutely incredible! Now that we have had our adrenaline rush, where should we go next to cool down?"',            
+            img: 'roller_coaster.jpg',            
+            keywords: {                
+                'aquarium': 'aquarium_scene',                
+                'fish': 'aquarium_scene',                
+                'water': 'waterpark_scene',                
+                'park': 'waterpark_scene'            
+            },            
+            options: [                
+                "We can visit the giant aquarium",                
+                "We can splash into the water park"            
+            ]        
+        },        
+        'safari_show': {            
+            text: 'David: "Wow, the Tata Show was breathtaking! The lights, the dancers, and the projection mapping on the castle were world-class! I am so glad we watched it. What is our next destination?"',            
+            img: 'tata_show.jpg',            
+            keywords: {                
+                'aquarium': 'aquarium_scene',                
+                'fish': 'aquarium_scene',                
+                'water': 'waterpark_scene',                
+                'park': 'waterpark_scene'            
+            },            
+            options: [                
+                "Let's check out the giant aquarium next",                
+                "Let's head over to the water park next"            
+            ]        
+        },        
+        'aquarium_scene': {            
+            text: 'David: "Unbelievable! Walking through this massive sea shell-shaped aquarium feels like exploring Atlantis. Look at those giant sharks and majestic manta rays swimming above us! This VinWonders tour is unforgettable. Thank you so much!" 🦈🐋🎉',            
+            img: 'aquarium.jpg',            
+            keywords: {},             
+            options: []        
+        },        
+        'waterpark_scene': {            
+            text: 'David: "Yes! This water park is exactly what I needed. The wave pool and the giant water slides are so refreshing and fun. I had the absolute best day today at VinWonders. Thanks for being an amazing tour guide!" 🌊🏊‍♂️🎉',            
+            img: 'water_park.jpg',            
+            keywords: {},             
+            options: []        
+        }    
+    };
+
+    let currentStage = 'start';    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;    
+    let recognition = null;
+
+    if (!SpeechRecognition) {        
+        alert("Please use Google Chrome (Android/PC) or Safari (iPhone) to enable voice recognition features!");    
+    } else {        
+        recognition = new SpeechRecognition();        
+        recognition.lang = 'en-US';        
+        recognition.interimResults = false;        
+        recognition.maxAlternatives = 1;    
     }
-};
+
+    const startBtn = document.getElementById('start-btn');    
+    const btnText = document.getElementById('btn-text');    
+    const btnIcon = document.getElementById('btn-icon');    
+    const statusText = document.getElementById('status-text');    
+    const transcriptText = document.getElementById('transcript-text');    
+    const sceneryImg = document.getElementById('scenery-img');    
+    const storyText = document.getElementById('story');    
+    const optionsList = document.getElementById('options-list');    
+    const interactionBox = document.getElementById('interaction-box');
+
+    if (recognition) {        
+        startBtn.addEventListener('click', () => {            
+            try {                
+                recognition.start();            
+            } catch(e) {                
+                console.log("Speech recognition is already running.");            
+            }        
+        });
+
+        recognition.onstart = () => {            
+            statusText.className = "status-active";            
+            statusText.innerText = "🎙️ Listening... Please read an option clearly in English.";            
+            btnText.innerText = "Listening...";            
+            btnIcon.innerText = "🛑";            
+            startBtn.disabled = true;        
+        };
+
+        recognition.onspeechend = () => {            
+            recognition.stop();            
+            startBtn.disabled = false;            
+            btnText.innerText = "Tap to Speak";            
+            btnIcon.innerText = "🎙️";        
+        };
+
+        recognition.onresult = (event) => {            
+            const resultText = event.results[0][0].transcript.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();            
+            transcriptText.innerText = `"${event.results[0][0].transcript}"`;                        
+            let isMatched = false;            
+            const currentKeywords = scriptTree[currentStage].keywords;
+
+            for (let key in currentKeywords) {                
+                if (resultText.includes(key)) {                    
+                    currentStage = currentKeywords[key];                    
+                    updateApplicationState();                    
+                    isMatched = true;                    
+                    break;                
+                }            
+            }
+
+            if (isMatched) {                
+                statusText.className = "status-success";                
+                statusText.innerText = "✅ Successfully recognized! Scene updated.";            
+            } else {                
+                statusText.className = "status-error";                
+                statusText.innerText = "❌ Phrase not recognized. Please try reading it again clearly!";            
+            }        
+        };
+
+        recognition.onerror = (event) => {            
+            startBtn.disabled = false;            
+            btnText.innerText = "Tap to Speak";            
+            btnIcon.innerText = "🎙️";            
+            statusText.className = "status-error";            
+            statusText.innerText = "Microphone Error: " + event.error;        
+        };    
+    }
+
+    function updateApplicationState() {        
+        const stage = scriptTree[currentStage];        
+        storyText.innerText = stage.text;        
+        sceneryImg.src = stage.img;        
+        optionsList.innerHTML = '';                
+        
+        if (stage.options && stage.options.length > 0) {            
+            interactionBox.style.display = 'block';            
+            startBtn.style.display = 'inline-flex';                        
+            stage.options.forEach(option => {                
+                const div = document.createElement('div');                
+                div.className = 'option-line';                
+                div.innerHTML = `👉 <strong>${option}</strong>`;                
+                optionsList.appendChild(div);            
+            });        
+        } else {            
+            interactionBox.innerHTML = `<p style="color: var(--success-color); text-align:center; margin-bottom:0; font-weight:bold;">🎉 You have successfully completed the VinWonders tour!</p>`;            
+            startBtn.style.display = 'none';            
+            statusText.className = "status-success";            
+            statusText.innerText = "Tour Concluded.";        
+        }    
+    }
+
+    function resetGame() {        
+        currentStage = 'start';        
+        transcriptText.innerText = "...";        
+        statusText.className = "";        
+        statusText.innerText = "Ready. Tap the button to activate the microphone.";        
+        
+        // Khôi phục lại cấu trúc hộp tương tác ban đầu nếu đã kết thúc game
+        interactionBox.innerHTML = `<p>🔊 Press the button below and read an option ALOUD:</p><div id="options-list"></div>`;
+        // Gán lại biến optionsList mới tạo trong DOM
+        setTimeout(() => {
+            window.optionsList = document.getElementById('options-list');
+            updateApplicationState();
+        }, 50);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {        
+        updateApplicationState();
+
+        // PLAY AUDIO FILE
+        const introAudio = new Audio('david.wav');        
+        introAudio.play().catch(() => {            
+            const playAudioOnInteraction = () => {                
+                introAudio.play();                
+                document.removeEventListener('click', playAudioOnInteraction);                
+                document.removeEventListener('touchstart', playAudioOnInteraction);            
+            };            
+            document.addEventListener('click', playAudioOnInteraction);            
+            document.addEventListener('touchstart', playAudioOnInteraction);        
+        });    
+    });
+</script>
+</body></html>
